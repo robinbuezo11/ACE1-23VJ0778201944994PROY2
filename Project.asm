@@ -4,28 +4,38 @@ PARED       equ      02
 CAJA        equ      03
 OBJETIVO    equ      04
 SUELO       equ      05
+CUBIERTO	equ      06  ;Caja sobre objetivo
 .MODEL SMALL
 .RADIX 16
 .STACK
 .DATA
+
+; Header
+usac            db  "Universidad de San Carlos de Guatemala", "$"
+facul           db  "Facultad de Ingenieria", "$"
+school          db  "Escuela de Vacaciones", "$"
+course          db  "Arquitectura de Computadores y E. 1", "$"
+student         db  "Robin Omar Buezo Diaz", "$"
+carne 		 	db  "201944994", "$"
+
 dim_sprite_jug    db   08, 08
-data_sprite_jug   db   5c, 5c, 5c, 04, 04, 04, 5c, 5c
-                  db   5c, 5c, 5c, 54, 54, 5c, 5c, 5c
-                  db   5c, 5c, 02, 02, 02, 02, 5c, 5c
-                  db   5c, 54, 5c, 02, 02, 5c, 54, 5c
-                  db   5c, 5c, 5c, 09, 09, 5c, 5c, 5c
-                  db   5c, 5c, 5c, 09, 09, 5c, 5c, 5c
-                  db   5c, 5c, 54, 5c, 5c, 54, 5c, 5c
-                  db   5c, 00, 00, 5c, 5c, 00, 00, 5c
+data_sprite_jug   db   5c, 02, 02, 02, 02, 5c, 5c, 08
+                  db   5c, 5c, 02, 02, 02, 02, 5c, 08
+                  db   5c, 5c, 0e, 00, 5a, 00, 5c, 08
+                  db   5c, 5c, 5a, 5a, 40, 5a, 5c, 08
+                  db   5a, 02, 02, 02, 02, 02, 02, 5a
+                  db   5c, 5c, 02, 02, 02, 02, 5c, 01
+                  db   5c, 5c, 04, 04, 04, 04, 5c, 5c
+                  db   5c, 5c, 06, 5c, 5c, 06, 5c, 5c
 dim_sprite_flcha  db   08, 08
-data_sprite_flcha   db   00, 00, 03, 00, 00, 00, 00, 00
-                    db   00, 00, 03, 03, 00, 00, 00, 00
-                    db   03, 03, 03, 03, 03, 00, 00, 00
-                    db   03, 03, 03, 03, 03, 03, 00, 00
-                    db   03, 03, 03, 03, 03, 03, 00, 00
-                    db   03, 03, 03, 03, 03, 00, 00, 00
-                    db   00, 00, 03, 03, 00, 00, 00, 00
-                    db   00, 00, 03, 00, 00, 00, 00, 00
+data_sprite_flcha   db   00, 00, 37, 00, 00, 00, 00, 00
+                    db   00, 00, 37, 37, 00, 00, 00, 00
+                    db   37, 37, 37, 37, 37, 00, 00, 00
+                    db   37, 37, 37, 37, 37, 37, 00, 00
+                    db   37, 37, 37, 37, 37, 37, 00, 00
+                    db   37, 37, 37, 37, 37, 00, 00, 00
+                    db   00, 00, 37, 37, 00, 00, 00, 00
+                    db   00, 00, 37, 00, 00, 00, 00, 00
 dim_sprite_vacio  db   08, 08
 data_sprite_vacio db   00, 00, 00, 00, 00, 00, 00, 00
                   db   00, 00, 00, 00, 00, 00, 00, 00
@@ -45,43 +55,55 @@ data_sprite_suelo db   5c, 5c, 5c, 5c, 5c, 5c, 5c, 5c
                   db   5c, 5c, 5c, 5c, 5c, 5c, 5c, 5c
                   db   5c, 5c, 5c, 5c, 5c, 5c, 5c, 5c
 dim_sprite_pared  db   08, 08
-data_sprite_pared db   35, 35, 0f, 0f, 35, 35, 0f, 0f
-                  db   35, 0f, 0f, 35, 35, 0f, 0f, 35
-                  db   0f, 0f, 35, 35, 0f, 0f, 35, 35
-                  db   0f, 35, 35, 0f, 0f, 35, 35, 0f
-                  db   35, 35, 0f, 0f, 35, 35, 0f, 0f
-                  db   35, 0f, 0f, 35, 35, 0f, 0f, 35
-                  db   0f, 0f, 35, 35, 0f, 0f, 35, 35
-                  db   0f, 35, 35, 0f, 0f, 35, 35, 0f
-dim_sprite_caja   db   08, 08
-data_sprite_caja  db  5c,5c,5c,5c,5c,5c,5c,5c
-                  db  5c,5c,0b8,0b8,0b8,0b8,5c,5c
-                  db  5c,0b8,8a,8a,8a,8a,0b8,5c
-                  db  5c,0b8,8a,8a,8a,8a,0b8,5c
-                  db  5c,0b8,8a,8a,8a,8a,0b8,5c
-                  db  5c,0b8,8a,8a,8a,8a,0b8,5c
-                  db  5c,5c,0b8,0b8,0b8,0b8,5c,5c
-                  db  5c,5c,5c,5c,5c,5c,5c,5c
+data_sprite_pared db   1e, 1e, 1e, 1e, 1b, 1b, 1b, 1b
+                  db   1e, 1e, 1e, 1e, 1b, 1b, 1b, 1b
+                  db   1e, 1e, 1e, 1e, 1b, 1b, 1b, 1b
+                  db   1e, 1e, 1e, 1e, 1b, 1b, 1b, 1b
+                  db   1b, 1b, 1b, 1b, 1e, 1e, 1e, 1e
+                  db   1b, 1b, 1b, 1b, 1e, 1e, 1e, 1e
+                  db   1b, 1b, 1b, 1b, 1e, 1e, 1e, 1e
+                  db   1b, 1b, 1b, 1b, 1e, 1e, 1e, 1e
 dim_sprite_obj    db   08, 08
 data_sprite_obj   db  5c,5c,5c,5c,5c,5c,5c,5c
-                  db  5c,28,5c,5c,5c,5c,28,5c
-                  db  5c,5c,28,5c,5c,28,5c,5c
-                  db  5c,5c,5c,28,28,5c,5c,5c
-                  db  5c,5c,5c,28,28,5c,5c,5c
-                  db  5c,5c,28,5c,5c,28,5c,5c
-                  db  5c,28,5c,5c,5c,5c,28,5c
                   db  5c,5c,5c,5c,5c,5c,5c,5c
+				  db  5c,5c,5c,40,40,5c,5c,5c
+				  db  5c,5c,40,40,40,40,5c,5c
+				  db  5c,5c,40,40,40,40,5c,5c
+				  db  5c,5c,5c,40,40,5c,5c,5c
+				  db  5c,5c,5c,5c,5c,5c,5c,5c
+				  db  5c,5c,5c,5c,5c,5c,5c,5c
+dim_sprite_caja   db   08, 08
+data_sprite_caja  db  06,06,06,06,06,06,06,06
+                  db  06,29,06,06,06,06,29,06
+                  db  06,06,29,06,06,29,06,06
+                  db  06,06,06,29,29,06,06,06
+                  db  06,06,06,29,29,06,06,06
+                  db  06,06,29,06,06,29,06,06
+                  db  06,29,06,06,06,06,29,06
+                  db  06,06,06,06,06,06,06,06
+dim_sprite_cubierto  db 08, 08
+data_sprite_cubierto db  29,29,29,29,29,29,29,29
+                  	 db  29,29,04,04,04,04,29,29
+					 db  29,04,29,04,04,29,04,29
+					 db  29,04,04,29,29,04,04,29
+					 db  29,04,04,29,29,04,04,29
+					 db  29,04,29,04,04,29,04,29
+					 db  29,29,04,04,04,04,29,29
+					 db  29,29,29,29,29,29,29,29 
 mapa              db   3e8 dup (0)
+sobre_objetivo	db   00
+sobre_obj_tmp	db   00
 iniciar_juego db "INICIAR JUEGO$"
 cargar_nivel  db "CARGAR NIVEL$"
 configuracion db "CONFIGURACION$"
 puntajes      db "PUNTAJES ALTOS$"
 salir         db "SALIR$"
-iniciales     db "RRMS - 201902425$"
+iniciales     db "ROBD - 201944994$"
 ;; JUEGO
 xJugador      db 0
 yJugador      db 0
 puntos        dw 0
+nivel         db 01
 ;; MENÚS
 opcion        db 0
 maximo        db 0
@@ -93,7 +115,10 @@ control_abajo     db  50
 control_izquierda db  4b
 control_derecha   db  4d
 ;; NIVELES
-nivel_x           db  "NIV.TXT",00
+nivel_actual      db  06 dup (0),00
+nivel_1 		  db  "NIV.00",00
+nivel_2 		  db  "NIV.01",00
+nivel_3 		  db  "NIV.10",00
 handle_nivel      dw  0000
 linea             db  100 dup (0)
 elemento_actual   db  0
@@ -110,17 +135,32 @@ tk_coma       db  01,","
 numero        db  5 dup (30)
 .CODE
 .STARTUP
+jmp inicio
+
+;---------------------------- MACROS -----------------------------------
+; print - print string with delimiter $
+print macro string
+    mov DX, offset string
+    mov AH, 09
+    int 21
+endm
+
 inicio:
-		;; MODO VIDEO ;;
+		;; MODO VIDEO 
 		mov AH, 00
 		mov AL, 13
 		int 10
-		;;;;;;;;;;;;;;;;
+
+		;; MENSAJE INICIAL
+		;call mensaje_inicial
+		;; MENU PRINCIPAL
+ir_al_menu_principal:
 		call menu_principal
 		mov AL, [opcion]
 		;; > INICIAR JUEGO
+		int 03
 		cmp AL, 0
-		je ciclo_juego
+		je juego
 		;; > CARGAR NIVEL
 		cmp AL, 1
 		je cargar_un_nivel
@@ -130,15 +170,52 @@ inicio:
 		cmp AL, 4
 		je fin
 		;;;;;;;;;;;;;;;;
+juego:
+		push SI
+		push DI
+		push CX
+		cmp [nivel], 01
+		je cargar_nivel_1
+		cmp [nivel], 02
+		je cargar_nivel_2
+		cmp [nivel], 03
+		je cargar_nivel_3
+cargar_nivel_1:
+		mov SI, offset nivel_1
+		mov DI, offset nivel_actual
+		mov CX, 6
+		call copy_string
+		jmp inicio_juego
+cargar_nivel_2:
+		mov SI, offset nivel_2
+		mov DI, offset nivel_actual
+		mov CX, 6
+		call copy_string
+		jmp inicio_juego
+cargar_nivel_3:
+		mov SI, offset nivel_3
+		mov DI, offset nivel_actual
+		mov CX, 6
+		call copy_string
+		jmp inicio_juego
+inicio_juego:
+		pop CX
+		pop DI
+		pop SI
+		call cargar_un_nivel
+		;;;;;;;;;;;;;;;;
 ciclo_juego:
 		call pintar_mapa
 		call entrada_juego
+		cmp AH, 4c				; ESTO LUEGO DEBE CAMBIARSE CUANDO SE CREE EL MENÚ DE PAUSA
+		je ir_al_menu_principal		; ESTO LUEGO DEBE CAMBIARSE CUANDO SE CREE EL MENÚ DE PAUSA
 		jmp ciclo_juego
 		;;;;;;;;;;;;;;;;
 
-cargar_un_nivel:
+cargar_un_nivel: ; ------------------------------------- CARGAR UN NIVEL
+		; Input: nivel_actual
 		mov AL, 00
-		mov DX, offset nivel_x
+		mov DX, offset nivel_actual
 		mov AH, 3d
 		int 21
 		jc inicio
@@ -148,15 +225,32 @@ ciclo_lineas:
 		mov BX, [handle_nivel]
 		call siguiente_linea
 		cmp DL, 0ff      ;; fin-del-archivo?
-		je fin_parseo
+		je ver_si_hay_algo_en_linea
 		cmp DH, 00      ;; línea-con-algo?
 		je ciclo_lineas
+		jmp logica_parseo
+ver_si_hay_algo_en_linea:
+		cmp DH, 00	  ;; línea-vacía
+		je fin_parseo
 		;;;;;;;;;;;;;;;;;;;;;;;
 		;; lógica del parseo ;;
 		;;;;;;;;;;;;;;;;;;;;;;;
-		;; al principio del buffer de la línea está: pared, caja, jugador, suelo, objetivo
+		;; ignorar espacios o retornos de carro
+logica_parseo:
 		mov DI, offset linea
 		push DI
+		;; verificar retorno de carro
+		mov AL, [DI]
+		cmp AL, 20
+		je ignorar0
+		cmp AL, 0d
+		je ignorar0
+		jmp iniciar_parseo
+ignorar0:
+		call ignorar_espacios
+		;;
+		;; al principio del buffer de la línea está: pared, caja, jugador, suelo, objetivo
+iniciar_parseo:
 		mov SI, offset tk_pared
 		call cadena_igual
 		cmp DL, 0ff               ;; cadenas iguales
@@ -243,6 +337,10 @@ continuar_parseo2:
 		jne ciclo_lineas
 		call ignorar_espacios
 		;; obtener una cadena numérica
+		mov AL, [elemento_actual]
+		cmp AL, JUGADOR
+		jne seguir_normal_debug
+seguir_normal_debug:
 		call leer_cadena_numerica
 		push DI
 		mov DI, offset numero
@@ -252,7 +350,11 @@ continuar_parseo2:
 		;; ignorar_espacios
 		mov AL, [DI]
 		cmp AL, 20
-		jne ver_final_de_linea
+		je ignorar1
+		cmp AL, 0d
+		je ignorar1
+		jmp ver_final_de_linea
+ignorar1:
 		call ignorar_espacios
 		;; ver si es el final de la cadena
 ver_final_de_linea:
@@ -282,7 +384,6 @@ fin_parseo:
 		mov BX, [handle_nivel]
 		int 21
 		;;
-		int 03
 		jmp ciclo_juego
 		jmp fin
 
@@ -303,16 +404,15 @@ pintar_pixel:
 		push DS
 		mov DX, 0a000
 		mov DS, DX
-		;; (
 		;; 	posicionarse en X
 		mov SI, AX
+		;;  posicionarse en Y
 		mov AX, 140
 		mul BX
 		add AX, SI
 		mov DI, AX
-		;;
-		mov [DI], CL  ;; pintar
-		;; )
+		;; pintar
+		mov [DI], CL  
 		pop DS
 		pop SI
 		pop DI
@@ -334,10 +434,10 @@ pintar_sprite:
 		push AX
 		push BX
 		push CX
-		inc SI
-		mov DH, [SI]  ;; vertical
+		inc SI		  ;; dirección de tam vertical
+		mov DH, [SI]  
 		dec SI        ;; dirección de tam horizontal
-		;;
+
 inicio_pintar_fila:
 		cmp DH, 00
 		je fin_pintar_sprite
@@ -384,6 +484,28 @@ fin_delay:
 		pop DI
 		pop SI
 		ret
+
+;; delay - subrutina de retardo
+delay_msg:
+		push SI
+		push DI
+		mov SI, 0900
+cicloC:
+		mov DI, 0900
+		dec SI
+		cmp SI, 0000
+		je fin_delay_msg
+cicloD:
+		dec DI
+		cmp DI, 0000
+		je cicloC
+		jmp cicloD
+fin_delay_msg:
+		pop DI
+		pop SI
+		ret
+
+
 		
 
 ;; clear_pantalla - limpia la pantalla
@@ -424,12 +546,12 @@ menu_principal:
 		mov [yFlecha], BX
 		;; IMPRIMIR OPCIONES ;;
 		;;;; INICIAR JUEGO
-		mov DL, 0c
+		mov DL, 0c ;; <<-- posicionar el cursor
 		mov DH, 05
 		mov BH, 00
 		mov AH, 02
 		int 10
-		;; <<-- posicionar el cursor
+
 		push DX
 		mov DX, offset iniciar_juego
 		mov AH, 09
@@ -491,7 +613,7 @@ entrada_menu_principal:
 		je restar_opcion_menu_principal
 		cmp AH, 50
 		je sumar_opcion_menu_principal
-		cmp AH, 3b  ;; le doy F1
+		cmp AH, 3b  ;; Tecla F1
 		je fin_menu_principal
 		jmp entrada_menu_principal
 restar_opcion_menu_principal:
@@ -642,6 +764,8 @@ ciclo_h:
                 cmp DL, SUELO
 		je pintar_suelo_mapa
 		;;
+		        cmp DL, CUBIERTO
+		je pintar_cubierto_mapa
 		jmp continuar_h
 pintar_vacio_mapa:
 		push AX
@@ -691,6 +815,14 @@ pintar_objetivo_mapa:
 		call pintar_sprite
 		pop AX
 		jmp continuar_h
+pintar_cubierto_mapa:
+		push AX
+		call adaptar_coordenada
+		mov SI, offset dim_sprite_cubierto
+		mov DI, offset data_sprite_cubierto
+		call pintar_sprite
+		pop AX
+		jmp continuar_h
 continuar_h:
 		inc AH
 		jmp ciclo_h
@@ -698,128 +830,7 @@ continuar_v:
 		inc AL
 		jmp ciclo_v
 fin_pintar_mapa:
-		ret
 
-
-;; mapa_quemado - mapa de prueba
-mapa_quemado:
-		mov DL, SUELO
-		mov AH, 2
-		mov AL, 2
-		call colocar_en_mapa
-		mov DL, SUELO
-		mov AH, 3
-		mov AL, 2
-		call colocar_en_mapa
-		mov DL, SUELO
-		mov AH, 4
-		mov AL, 2
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 2
-		mov AL, 3
-		call colocar_en_mapa
-		mov DL, SUELO
-		mov AH, 3
-		mov AL, 3
-		call colocar_en_mapa
-		mov DL, SUELO
-		mov AH, 4
-		mov AL, 3
-		call colocar_en_mapa
-		mov DL, SUELO
-		mov AH, 2
-		mov AL, 4
-		call colocar_en_mapa
-		mov DL, SUELO
-		mov AH, 3
-		mov AL, 4
-		call colocar_en_mapa
-		mov DL, SUELO
-		mov AH, 4
-		mov AL, 4
-		call colocar_en_mapa
-		;;
-		mov DL, JUGADOR
-		mov AH, [xJugador]
-		mov AL, [yJugador]
-		call colocar_en_mapa
-		;;
-		mov DL, CAJA
-		mov AH, 2
-		mov AL, 3
-		call colocar_en_mapa
-		;;
-		mov DL, OBJETIVO
-		mov AH, 4
-		mov AL, 2
-		call colocar_en_mapa
-		;;
-		mov DL, PARED
-		mov AH, 1
-		mov AL, 1
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 2
-		mov AL, 1
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 3
-		mov AL, 1
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 4
-		mov AL, 1
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 5
-		mov AL, 1
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 1
-		mov AL, 2
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 5
-		mov AL, 2
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 1
-		mov AL, 3
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 5
-		mov AL, 3
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 1
-		mov AL, 4
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 5
-		mov AL, 4
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 1
-		mov AL, 5
-		call colocar_en_mapa
-
-		mov DL, PARED
-		mov AH, 2
-		mov AL, 5
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 3
-		mov AL, 5
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 4
-		mov AL, 5
-		call colocar_en_mapa
-		mov DL, PARED
-		mov AH, 5
-		mov AL, 5
-		call colocar_en_mapa
 		ret
 
 
@@ -840,6 +851,7 @@ entrada_juego:
 		cmp AH, [control_derecha]
 		je mover_jugador_der
 		cmp AH, 3c
+		je pausa
 		ret
 mover_jugador_arr:
 		mov AH, [xJugador]
@@ -851,6 +863,12 @@ mover_jugador_arr:
 		;; DL <- elemento en mapa
 		cmp DL, PARED
 		je hay_pared_arriba
+		cmp DL, CAJA
+		je hay_caja_arriba
+		cmp DL, OBJETIVO
+		jne no_obj_arriba
+		mov [sobre_obj_tmp], 01
+no_obj_arriba:
 		mov [yJugador], AL
 		;;
 		mov DL, JUGADOR
@@ -858,12 +876,75 @@ mover_jugador_arr:
 		call colocar_en_mapa
 		pop AX
 		;;
+		cmp [sobre_objetivo], 01
+		je pintar_objetivo_abajo
+		jmp pintar_suelo_abajo
+hay_pared_arriba:
+		ret
+hay_caja_arriba:
+		mov AH, [xJugador]
+		mov AL, [yJugador]
+		dec AL
+		dec AL
+		push AX
+		call obtener_de_mapa
+		pop AX
+		;; DL <- elemento en mapa
+		cmp DL, PARED
+		je hay_pared_arriba
+		cmp DL, CAJA
+		je hay_pared_arriba
+		cmp DL, OBJETIVO
+		je hay_objetivo_arriba_caja
+		mov DL, CAJA
+		push AX
+		call colocar_en_mapa
+		pop AX
+		;;
+colocar_jugador_arriba:
+		inc AL
+		mov [yJugador], AL
+		;;
+		mov DL, JUGADOR
+		push AX
+		call colocar_en_mapa
+		pop AX
+		;;
+		cmp [sobre_objetivo], 01
+		je pintar_objetivo_abajo
+		jmp pintar_suelo_abajo
+hay_objetivo_arriba_caja:
+		mov DL, CUBIERTO
+		push AX
+		call colocar_en_mapa
+		pop AX
+		jmp colocar_jugador_arriba
+pintar_suelo_abajo:
 		mov DL, SUELO
 		inc AL
 		call colocar_en_mapa
-		ret
-hay_pared_arriba:
-		ret
+		;;
+		push AX
+		mov AL, [sobre_obj_tmp]
+		mov [sobre_objetivo], AL
+		pop AX
+		mov [sobre_obj_tmp], 00
+		cmp [sobre_objetivo], 01
+		je hay_objetivo
+		jmp no_hay_objetivo
+pintar_objetivo_abajo:
+		mov DL, OBJETIVO
+		inc AL
+		call colocar_en_mapa
+		;;
+		push AX
+		mov AL, [sobre_obj_tmp]
+		mov [sobre_objetivo], AL
+		pop AX
+		mov [sobre_obj_tmp], 00
+		cmp [sobre_objetivo], 01
+		je hay_objetivo
+		jmp no_hay_objetivo
 mover_jugador_aba:
 		mov AH, [xJugador]
 		mov AL, [yJugador]
@@ -874,6 +955,12 @@ mover_jugador_aba:
 		;; DL <- elemento en mapa
 		cmp DL, PARED
 		je hay_pared_abajo
+		cmp DL, CAJA
+		je hay_caja_abajo
+		cmp DL, OBJETIVO
+		jne no_obj_abajo
+		mov [sobre_obj_tmp], 01
+no_obj_abajo:
 		mov [yJugador], AL
 		;;
 		mov DL, JUGADOR
@@ -881,12 +968,75 @@ mover_jugador_aba:
 		call colocar_en_mapa
 		pop AX
 		;;
+		cmp [sobre_objetivo], 01
+		je pintar_objetivo_arriba
+		jmp pintar_suelo_arriba
+hay_pared_abajo:
+		ret
+hay_caja_abajo:
+		mov AH, [xJugador]
+		mov AL, [yJugador]
+		inc AL
+		inc AL
+		push AX
+		call obtener_de_mapa
+		pop AX
+		;; DL <- elemento en mapa
+		cmp DL, PARED
+		je hay_pared_abajo
+		cmp DL, CAJA
+		je hay_pared_abajo
+		cmp DL, OBJETIVO
+		je hay_objetivo_abajo_caja
+colocar_jugador_abajo:
+		mov DL, CAJA
+		push AX
+		call colocar_en_mapa
+		pop AX
+		;;
+		dec AL
+		mov [yJugador], AL
+		;;
+		mov DL, JUGADOR
+		push AX
+		call colocar_en_mapa
+		pop AX
+		;;
+		cmp [sobre_objetivo], 01
+		je pintar_objetivo_arriba
+		jmp pintar_suelo_arriba
+hay_objetivo_abajo_caja:
+		mov DL, CUBIERTO
+		push AX
+		call colocar_en_mapa
+		pop AX
+		jmp colocar_jugador_abajo
+pintar_suelo_arriba:
 		mov DL, SUELO
 		dec AL
 		call colocar_en_mapa
-		ret
-hay_pared_abajo:
-		ret
+		;;
+		push AX
+		mov AL, [sobre_obj_tmp]
+		mov [sobre_objetivo], AL
+		pop AX
+		mov [sobre_obj_tmp], 00
+		cmp [sobre_objetivo], 01
+		je hay_objetivo
+		jmp no_hay_objetivo
+pintar_objetivo_arriba:
+		mov DL, OBJETIVO
+		dec AL
+		call colocar_en_mapa
+		;;
+		push AX
+		mov AL, [sobre_obj_tmp]
+		mov [sobre_objetivo], AL
+		pop AX
+		mov [sobre_obj_tmp], 00
+		cmp [sobre_objetivo], 01
+		je hay_objetivo
+		jmp no_hay_objetivo
 mover_jugador_izq:
 		mov AH, [xJugador]
 		mov AL, [yJugador]
@@ -897,6 +1047,12 @@ mover_jugador_izq:
 		;; DL <- elemento en mapa
 		cmp DL, PARED
 		je hay_pared_izquierda
+		cmp DL, CAJA
+		je hay_caja_izquierda
+		cmp DL, OBJETIVO
+		jne no_obj_izq
+		mov [sobre_obj_tmp], 01
+no_obj_izq:
 		mov [xJugador], AH
 		;;
 		mov DL, JUGADOR
@@ -904,12 +1060,75 @@ mover_jugador_izq:
 		call colocar_en_mapa
 		pop AX
 		;;
+		cmp [sobre_objetivo], 01
+		je pintar_objetivo_derecha
+		jmp pintar_suelo_derecha
+hay_pared_izquierda:
+		ret
+hay_caja_izquierda:
+		mov AH, [xJugador]
+		mov AL, [yJugador]
+		dec AH
+		dec AH
+		push AX
+		call obtener_de_mapa
+		pop AX
+		;; DL <- elemento en mapa
+		cmp DL, PARED
+		je hay_pared_izquierda
+		cmp DL, CAJA
+		je hay_pared_izquierda
+		cmp DL, OBJETIVO
+		je hay_objetivo_izq_caja
+colocar_jugador_izquierda:
+		mov DL, CAJA
+		push AX
+		call colocar_en_mapa
+		pop AX
+		;;
+		inc AH
+		mov [xJugador], AH
+		;;
+		mov DL, JUGADOR
+		push AX
+		call colocar_en_mapa
+		pop AX
+		;;
+		cmp [sobre_objetivo], 01
+		je pintar_objetivo_derecha
+		jmp pintar_suelo_derecha
+hay_objetivo_izq_caja:
+		mov DL, CUBIERTO
+		push AX
+		call colocar_en_mapa
+		pop AX
+		jmp colocar_jugador_izquierda
+pintar_suelo_derecha:
 		mov DL, SUELO
 		inc AH
 		call colocar_en_mapa
-		ret
-hay_pared_izquierda:
-		ret
+		;;
+		push AX
+		mov AL, [sobre_obj_tmp]
+		mov [sobre_objetivo], AL
+		pop AX
+		mov [sobre_obj_tmp], 00
+		cmp [sobre_objetivo], 01
+		je hay_objetivo
+		jmp no_hay_objetivo
+pintar_objetivo_derecha:
+		mov DL, OBJETIVO
+		inc AH
+		call colocar_en_mapa
+		;;
+		push AX
+		mov AL, [sobre_obj_tmp]
+		mov [sobre_objetivo], AL
+		pop AX
+		mov [sobre_obj_tmp], 00
+		cmp [sobre_objetivo], 01
+		je hay_objetivo
+		jmp no_hay_objetivo
 mover_jugador_der:
 		mov AH, [xJugador]
 		mov AL, [yJugador]
@@ -920,6 +1139,12 @@ mover_jugador_der:
 		;; DL <- elemento en mapa
 		cmp DL, PARED
 		je hay_pared_derecha
+		cmp DL, CAJA
+		je hay_caja_derecha
+		cmp DL, OBJETIVO
+		jne no_obj_der
+		mov [sobre_obj_tmp], 01
+no_obj_der:
 		mov [xJugador], AH
 		;;
 		mov DL, JUGADOR
@@ -927,13 +1152,92 @@ mover_jugador_der:
 		call colocar_en_mapa
 		pop AX
 		;;
+		cmp [sobre_objetivo], 01
+		je pintar_objetivo_izquierda
+		jmp pintar_suelo_izquierda
+hay_pared_derecha:
+		ret
+hay_caja_derecha:
+		mov AH, [xJugador]
+		mov AL, [yJugador]
+		inc AH
+		inc AH
+		push AX
+		call obtener_de_mapa
+		pop AX
+		;; DL <- elemento en mapa
+		cmp DL, PARED
+		je hay_pared_derecha
+		cmp DL, CAJA
+		je hay_pared_derecha
+		cmp DL, OBJETIVO
+		je hay_objetivo_der_caja
+colocar_jugador_derecha:
+		mov DL, CAJA
+		push AX
+		call colocar_en_mapa
+		pop AX
+		;;
+		dec AH
+		mov [xJugador], AH
+		;;
+		mov DL, JUGADOR
+		push AX
+		call colocar_en_mapa
+		pop AX
+		;;
+		cmp [sobre_objetivo], 01
+		je pintar_objetivo_izquierda
+		jmp pintar_suelo_izquierda
+hay_objetivo_der_caja:
+		mov DL, CUBIERTO
+		push AX
+		call colocar_en_mapa
+		pop AX
+		jmp colocar_jugador_derecha
+pintar_suelo_izquierda:
 		mov DL, SUELO
 		dec AH
 		call colocar_en_mapa
-		ret
-hay_pared_derecha:
-		ret
+		;;
+		push AX
+		mov AL, [sobre_obj_tmp]
+		mov [sobre_objetivo], AL
+		pop AX
+		mov [sobre_obj_tmp], 00
+		cmp [sobre_objetivo], 01
+		je hay_objetivo
+		jmp no_hay_objetivo
+pintar_objetivo_izquierda:
+		mov DL, OBJETIVO
+		dec AH
+		call colocar_en_mapa
+		;;
+		push AX
+		mov AL, [sobre_obj_tmp]
+		mov [sobre_objetivo], AL
+		pop AX
+		mov [sobre_obj_tmp], 00
+		cmp [sobre_objetivo], 01
+		je hay_objetivo
+		jmp no_hay_objetivo
 fin_entrada_juego:
+		ret
+pausa:							; ESTO AÚN DEBE SER ACTUALIZADO POR EL MENÚ DE PAUSA
+		call clear_pantalla
+		mov AH, 4c
+		ret
+hay_objetivo:
+		push AX
+		mov AL, 01
+		mov [sobre_objetivo], AL
+		pop AX
+		ret
+no_hay_objetivo:
+		push AX
+		mov AL, 00
+		mov [sobre_objetivo], AL
+		pop AX
 		ret
 
 
@@ -969,6 +1273,11 @@ quitar_nl_y_fin:
 		mov DL, 00    ;; no ha finalizado el archivo
 		ret
 fin_siguiente_linea:
+		int 03
+		mov AL, 00
+		mov [DI], AL
+		mov DX, SI
+		mov DH, DL
 		mov DL, 0ff   ;; ya finalizó el archivo
 		ret
 
@@ -1006,7 +1315,11 @@ ignorar_espacios:
 ciclo_ignorar:
 		mov AL, [DI]
 		cmp AL, 20
-		jne fin_ignorar
+		je ignorar_caracter
+		cmp AL, 0d
+		je ignorar_caracter
+		jmp fin_ignorar
+ignorar_caracter:
 		inc DI
 		jmp ciclo_ignorar
 fin_ignorar:
@@ -1091,6 +1404,64 @@ seguir_convirtiendo:
 retorno_cadenaAnum:
 		ret
 
+mensaje_inicial:
+		mov DH, 04 ;; <<-- posicionar el cursor
+		mov DL, 01
+		mov BH, 00
+		mov AH, 02
+		int 10
+		print usac
+		;;
+		mov DH, 07
+		mov DL, 09
+		mov BH, 00
+		mov AH, 02
+		int 10
+		print facul
+		;;
+		mov DH, 0a
+		mov DL, 0a
+		mov BH, 00
+		mov AH, 02
+		int 10
+		print school
+		;;
+		mov DH, 0d
+		mov DL, 02
+		mov BH, 00
+		mov AH, 02
+		int 10
+		print course
+		;;
+		mov DH, 10
+		mov DL, 0a
+		mov BH, 00
+		mov AH, 02
+		int 10
+		print student
+		;;
+		mov DH, 13
+		mov DL, 10
+		mov BH, 00
+		mov AH, 02
+		int 10
+		print carne
+		call delay_msg
+		ret
+
+copy_string: ;------------------------------------Start of copy_string
+        ; Copy string
+        ; Input: SI = Source string
+        ;        DI = Destination string
+        ;        CX = length max
+        ; Output:DI = Source string
+        mov AL, [SI]
+        mov [DI], AL
+        inc SI
+        inc DI
+        loop copy_string
+        ret
+        ;------------------------------------End of copy_string
 
 fin:
 .EXIT
