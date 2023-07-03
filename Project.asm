@@ -73,14 +73,14 @@ data_sprite_obj   db  5c,5c,5c,5c,5c,5c,5c,5c
 				  db  5c,5c,5c,5c,5c,5c,5c,5c
 				  db  5c,5c,5c,5c,5c,5c,5c,5c
 dim_sprite_caja   db   08, 08
-data_sprite_caja  db  06,06,06,06,06,06,06,06
-                  db  06,29,06,06,06,06,29,06
-                  db  06,06,29,06,06,29,06,06
-                  db  06,06,06,29,29,06,06,06
-                  db  06,06,06,29,29,06,06,06
-                  db  06,06,29,06,06,29,06,06
-                  db  06,29,06,06,06,06,29,06
-                  db  06,06,06,06,06,06,06,06
+data_sprite_caja  db  71,71,71,71,71,71,71,71
+                  db  71,71,06,06,06,06,71,71
+                  db  71,06,71,06,06,71,06,71
+                  db  71,06,06,71,71,06,06,71
+                  db  71,06,06,71,71,06,06,71
+                  db  71,06,71,06,06,71,06,71
+                  db  71,71,06,06,06,06,71,71
+                  db  71,71,71,71,71,71,71,71
 dim_sprite_cubierto  db 08, 08
 data_sprite_cubierto db  29,29,29,29,29,29,29,29
                   	 db  29,29,04,04,04,04,29,29
@@ -90,20 +90,33 @@ data_sprite_cubierto db  29,29,29,29,29,29,29,29
 					 db  29,04,29,04,04,29,04,29
 					 db  29,29,04,04,04,04,29,29
 					 db  29,29,29,29,29,29,29,29 
-mapa              db   3e8 dup (0)
-sobre_objetivo	db   00
-sobre_obj_tmp	db   00
+mapa              	db   3e8 dup (0)
+sobre_objetivo		db   00
+sobre_obj_tmp		db   00
+mover_cubierto		db   00
+es_nivel_cargado 	db   00
 iniciar_juego db "INICIAR JUEGO$"
 cargar_nivel  db "CARGAR NIVEL$"
 configuracion db "CONFIGURACION$"
 puntajes      db "PUNTAJES ALTOS$"
 salir         db "SALIR$"
 iniciales     db "ROBD - 201944994$"
+
+continuar_juego db "CONTINUAR JUEGO$"
+salir_juego	 	db "SALIR AL MENU$"
 ;; JUEGO
 xJugador      db 0
 yJugador      db 0
 puntos        dw 0
+puntos_tmp    dw 1
 nivel         db 01
+seconds	      db 00
+minutes	      db 00
+hours 	   	  db 00
+seconds_tmp	  db 00
+time 		  db "00:00:00","$"
+objetivos     db 0
+cubiertos	  db 0
 ;; MENÚS
 opcion        db 0
 maximo        db 0
@@ -132,7 +145,7 @@ tk_caja       db  04,"caja"
 tk_objetivo   db  08,"objetivo"
 tk_coma       db  01,","
 ;;
-numero        db  5 dup (30)
+numero        db  5 dup (30), "$"
 .CODE
 .STARTUP
 jmp inicio
@@ -152,25 +165,44 @@ inicio:
 		int 10
 
 		;; MENSAJE INICIAL
-		;call mensaje_inicial
+
+		;call mensaje_inicial			ESTO LLAMA AL MENSAJE INICIAL
+
 		;; MENU PRINCIPAL
 ir_al_menu_principal:
+		mov [es_nivel_cargado], 00
 		call menu_principal
 		mov AL, [opcion]
 		;; > INICIAR JUEGO
-		int 03
 		cmp AL, 0
 		je juego
 		;; > CARGAR NIVEL
 		cmp AL, 1
 		je cargar_un_nivel
 		;; > CONFIGURACION
+		cmp AL, 2
+		je menu_configuracion
 		;; > PUNTAJES ALTOS
 		;; > SALIR
 		cmp AL, 4
 		je fin
 		;;;;;;;;;;;;;;;;
 juego:
+		call set_current_time
+		mov [puntos], 0
+		mov [puntos_tmp], 1
+		mov [nivel], 1
+		push AX
+		push CX
+		push DI
+		mov DI, offset mapa
+		mov CX, 3e8
+		mov AL, 00
+		call memset
+		pop DI
+		pop CX
+		pop AX
+corroborar_nivel:
 		push SI
 		push DI
 		push CX
@@ -205,15 +237,48 @@ inicio_juego:
 		call cargar_un_nivel
 		;;;;;;;;;;;;;;;;
 ciclo_juego:
+		call calculate_time
 		call pintar_mapa
 		call entrada_juego
-		cmp AH, 4c				; ESTO LUEGO DEBE CAMBIARSE CUANDO SE CREE EL MENÚ DE PAUSA
-		je ir_al_menu_principal		; ESTO LUEGO DEBE CAMBIARSE CUANDO SE CREE EL MENÚ DE PAUSA
+		cmp AH, 4c				
+		je ir_a_menu_pausa		
+		;; COMPROBAR SI SE COMPLETÓ EL NIVEL
+		mov AL, [cubiertos]
+		cmp [objetivos], AL
+		je nivel_completado
 		jmp ciclo_juego
+		;;;;;;;;;;;;;;;;
+ir_a_menu_pausa:
+		call menu_pausa
+		mov AL, [opcion]
+		;; > CONTINUAR JUEGO
+		cmp AL, 0
+		je ciclo_juego
+		;; > SALIR AL MENU
+		cmp AL, 1
+		je ir_al_menu_principal
+		;;;;;;;;;;;;;;;;
+nivel_completado:
+		push AX
+		push CX
+		push DI
+		mov DI, offset mapa
+		mov CX, 3e8
+		mov AL, 00
+		call memset
+		pop DI
+		pop CX
+		pop AX
+		inc [nivel]
+		cmp [es_nivel_cargado], 01
+		je ir_al_menu_principal
+		jmp corroborar_nivel
 		;;;;;;;;;;;;;;;;
 
 cargar_un_nivel: ; ------------------------------------- CARGAR UN NIVEL
 		; Input: nivel_actual
+		mov [objetivos], 0
+		mov [cubiertos], 0
 		mov AL, 00
 		mov DX, offset nivel_actual
 		mov AH, 3d
@@ -370,6 +435,12 @@ ver_final_de_linea:
 		mov AL, JUGADOR
 		cmp AL, [elemento_actual]
 		je guardar_coordenadas_jugador
+		mov AL, OBJETIVO
+		cmp AL, [elemento_actual]
+		je contar_objetivo
+		jmp ciclo_lineas
+contar_objetivo:
+		inc [objetivos]
 		jmp ciclo_lineas
 guardar_coordenadas_jugador:
 		mov AH, [xElemento]
@@ -385,7 +456,9 @@ fin_parseo:
 		int 21
 		;;
 		jmp ciclo_juego
-		jmp fin
+
+menu_configuracion:
+		jmp ir_al_menu_principal
 
 ;; pintar_pixel - pintar un pixel
 ;; ENTRADA:
@@ -664,6 +737,112 @@ pintar_flecha_menu_principal:
 fin_menu_principal:
 		ret
 
+;; menu_pausa - menu pausa
+;; ..
+;; SALIDA
+;;    - [opcion] -> código numérico de la opción elegida
+menu_pausa:
+		call clear_pantalla
+		call time_pause
+		mov AL, 0
+		mov [opcion], AL      ;; reinicio de la variable de salida
+		mov AL, 2
+		mov [maximo], AL
+		mov AX, 50
+		mov BX, 28
+		mov [xFlecha], AX
+		mov [yFlecha], BX
+		;; IMPRIMIR OPCIONES ;;
+		;;;; CONTINUAR JUEGO
+		mov DL, 0c ;; <<-- posicionar el cursor
+		mov DH, 05
+		mov BH, 00
+		mov AH, 02
+		int 10
+
+		push DX
+		mov DX, offset continuar_juego
+		mov AH, 09
+		int 21
+		pop DX
+		;;
+		;;;; SALIR AL MENÚ PRINCIPAL
+		add DH, 02
+		mov BH, 00
+		mov AH, 02
+		int 10
+		push DX
+		mov DX, offset salir_juego
+		mov AH, 09
+		int 21
+		pop DX
+		;;;;
+		call pintar_flecha
+		;;;;
+		;; LEER TECLA
+		;;;;
+entrada_menu_pausa:
+		call time_pause
+		mov AH, 01
+		int 16
+		jz entrada_menu_pausa
+		mov AH, 00
+		int 16
+		cmp AH, 48
+		je restar_opcion_menu_pausa
+		cmp AH, 50
+		je sumar_opcion_menu_pausa
+		cmp AH, 3b  ;; Tecla F1
+		je fin_menu_pausa
+		jmp entrada_menu_pausa
+restar_opcion_menu_pausa:
+		mov AL, [opcion]
+		dec AL
+		cmp AL, 0ff
+		je volver_a_cero_menu_pausa
+		mov [opcion], AL
+		jmp mover_flecha_menu_pausa
+sumar_opcion_menu_pausa:
+		mov AL, [opcion]
+		mov AH, [maximo]
+		inc AL
+		cmp AL, AH
+		je volver_a_maximo_menu_pausa
+		mov [opcion], AL
+		jmp mover_flecha_menu_pausa
+volver_a_cero_menu_pausa:
+		mov AL, 0
+		mov [opcion], AL
+		jmp mover_flecha_menu_pausa
+volver_a_maximo_menu_pausa:
+		mov AL, [maximo]
+		dec AL
+		mov [opcion], AL
+		jmp mover_flecha_menu_pausa
+mover_flecha_menu_pausa:
+		mov AX, [xFlecha]
+		mov BX, [yFlecha]
+		mov SI, offset dim_sprite_vacio
+		mov DI, offset data_sprite_vacio
+		call pintar_sprite
+		mov AX, 50
+		mov BX, 28
+		mov CL, [opcion]
+ciclo_ubicar_flecha_menu_pausa:
+		cmp CL, 0
+		je pintar_flecha_menu_pausa
+		dec CL
+		add BX, 10
+		jmp ciclo_ubicar_flecha_menu_pausa
+pintar_flecha_menu_pausa:
+		mov [xFlecha], AX
+		mov [yFlecha], BX
+		call pintar_flecha
+		jmp entrada_menu_pausa
+		;;
+fin_menu_pausa:
+		ret
+
 ;; pintar_flecha - pinta una flecha
 pintar_flecha:
 		mov AX, [xFlecha]
@@ -732,10 +911,10 @@ obtener_de_mapa:
 ;; ENTRADA:
 ;; SALIDA:
 pintar_mapa:
-		mov AL, 00   ;; fila
+		mov AL, 01   ;; fila
 		;;
 ciclo_v:
-		cmp AL, 19
+		cmp AL, 18
 		je fin_pintar_mapa
 		mov AH, 00   ;; columna
 		;;
@@ -830,7 +1009,40 @@ continuar_v:
 		inc AL
 		jmp ciclo_v
 fin_pintar_mapa:
-
+		push AX
+		push BX
+		push DX
+		;; PINTAR LAS INICIALES
+		mov DH, 18
+		mov DL, 00
+		mov BH, 00
+		mov AH, 02
+		int 10
+		print iniciales
+		;; PINTAR TIEMPO
+		mov DH, 18
+		mov DL, 1f
+		mov BH, 00
+		mov AH, 02
+		int 10
+		print time
+		;; PINTAR PUNTAJES
+		mov AX, [puntos_tmp]
+		cmp AX, [puntos]
+		je return_pintar_mapa
+		mov AX, [puntos]
+		call num_to_string
+		mov DH, 00
+		mov DL, 23
+		mov BH, 00
+		mov AH, 02
+		int 10
+		print numero
+		mov [puntos_tmp], AX
+return_pintar_mapa:
+		pop DX
+		pop BX
+		pop AX
 		ret
 
 
@@ -861,6 +1073,8 @@ mover_jugador_arr:
 		call obtener_de_mapa
 		pop AX
 		;; DL <- elemento en mapa
+		cmp DL, CUBIERTO
+		je hay_cubierto_arriba
 		cmp DL, PARED
 		je hay_pared_arriba
 		cmp DL, CAJA
@@ -880,7 +1094,12 @@ no_obj_arriba:
 		je pintar_objetivo_abajo
 		jmp pintar_suelo_abajo
 hay_pared_arriba:
+		mov [sobre_obj_tmp], 00
+		mov [mover_cubierto], 00
 		ret
+hay_cubierto_arriba:
+		mov [mover_cubierto], 01
+		mov [sobre_obj_tmp], 01
 hay_caja_arriba:
 		mov AH, [xJugador]
 		mov AL, [yJugador]
@@ -902,6 +1121,11 @@ hay_caja_arriba:
 		pop AX
 		;;
 colocar_jugador_arriba:
+		cmp [mover_cubierto], 01
+		jne no_mover_cubierto_arriba
+		dec [cubiertos]
+no_mover_cubierto_arriba:
+		mov [mover_cubierto], 00
 		inc AL
 		mov [yJugador], AL
 		;;
@@ -914,6 +1138,7 @@ colocar_jugador_arriba:
 		je pintar_objetivo_abajo
 		jmp pintar_suelo_abajo
 hay_objetivo_arriba_caja:
+		inc [cubiertos]
 		mov DL, CUBIERTO
 		push AX
 		call colocar_en_mapa
@@ -953,6 +1178,8 @@ mover_jugador_aba:
 		call obtener_de_mapa
 		pop AX
 		;; DL <- elemento en mapa
+		cmp DL, CUBIERTO
+		je hay_cubierto_abajo
 		cmp DL, PARED
 		je hay_pared_abajo
 		cmp DL, CAJA
@@ -972,7 +1199,12 @@ no_obj_abajo:
 		je pintar_objetivo_arriba
 		jmp pintar_suelo_arriba
 hay_pared_abajo:
+		mov [sobre_obj_tmp], 00
+		mov [mover_cubierto], 00
 		ret
+hay_cubierto_abajo:
+		mov [mover_cubierto], 01
+		mov [sobre_obj_tmp], 01
 hay_caja_abajo:
 		mov AH, [xJugador]
 		mov AL, [yJugador]
@@ -988,12 +1220,17 @@ hay_caja_abajo:
 		je hay_pared_abajo
 		cmp DL, OBJETIVO
 		je hay_objetivo_abajo_caja
-colocar_jugador_abajo:
 		mov DL, CAJA
 		push AX
 		call colocar_en_mapa
 		pop AX
 		;;
+colocar_jugador_abajo:
+		cmp [mover_cubierto], 01
+		jne no_mover_cubierto_abajo
+		dec [cubiertos]
+no_mover_cubierto_abajo:
+		mov [mover_cubierto], 00
 		dec AL
 		mov [yJugador], AL
 		;;
@@ -1006,6 +1243,7 @@ colocar_jugador_abajo:
 		je pintar_objetivo_arriba
 		jmp pintar_suelo_arriba
 hay_objetivo_abajo_caja:
+		inc [cubiertos]
 		mov DL, CUBIERTO
 		push AX
 		call colocar_en_mapa
@@ -1045,6 +1283,8 @@ mover_jugador_izq:
 		call obtener_de_mapa
 		pop AX
 		;; DL <- elemento en mapa
+		cmp DL, CUBIERTO
+		je hay_cubierto_izquierda
 		cmp DL, PARED
 		je hay_pared_izquierda
 		cmp DL, CAJA
@@ -1064,7 +1304,12 @@ no_obj_izq:
 		je pintar_objetivo_derecha
 		jmp pintar_suelo_derecha
 hay_pared_izquierda:
+		mov [sobre_obj_tmp], 00
+		mov [mover_cubierto], 00
 		ret
+hay_cubierto_izquierda:
+		mov [mover_cubierto], 01
+		mov [sobre_obj_tmp], 01
 hay_caja_izquierda:
 		mov AH, [xJugador]
 		mov AL, [yJugador]
@@ -1080,12 +1325,17 @@ hay_caja_izquierda:
 		je hay_pared_izquierda
 		cmp DL, OBJETIVO
 		je hay_objetivo_izq_caja
-colocar_jugador_izquierda:
 		mov DL, CAJA
 		push AX
 		call colocar_en_mapa
 		pop AX
 		;;
+colocar_jugador_izquierda:
+		cmp [mover_cubierto], 01
+		jne no_mover_cubierto_izquierda
+		dec [cubiertos]
+no_mover_cubierto_izquierda:
+		mov [mover_cubierto], 00
 		inc AH
 		mov [xJugador], AH
 		;;
@@ -1098,6 +1348,7 @@ colocar_jugador_izquierda:
 		je pintar_objetivo_derecha
 		jmp pintar_suelo_derecha
 hay_objetivo_izq_caja:
+		inc [cubiertos]
 		mov DL, CUBIERTO
 		push AX
 		call colocar_en_mapa
@@ -1137,6 +1388,8 @@ mover_jugador_der:
 		call obtener_de_mapa
 		pop AX
 		;; DL <- elemento en mapa
+		cmp DL, CUBIERTO
+		je hay_cubierto_derecha
 		cmp DL, PARED
 		je hay_pared_derecha
 		cmp DL, CAJA
@@ -1156,7 +1409,12 @@ no_obj_der:
 		je pintar_objetivo_izquierda
 		jmp pintar_suelo_izquierda
 hay_pared_derecha:
+		mov [sobre_obj_tmp], 00
+		mov [mover_cubierto], 00
 		ret
+hay_cubierto_derecha:
+		mov [mover_cubierto], 01
+		mov [sobre_obj_tmp], 01
 hay_caja_derecha:
 		mov AH, [xJugador]
 		mov AL, [yJugador]
@@ -1172,12 +1430,17 @@ hay_caja_derecha:
 		je hay_pared_derecha
 		cmp DL, OBJETIVO
 		je hay_objetivo_der_caja
-colocar_jugador_derecha:
 		mov DL, CAJA
 		push AX
 		call colocar_en_mapa
 		pop AX
 		;;
+colocar_jugador_derecha:
+		cmp [mover_cubierto], 01
+		jne no_mover_cubierto_derecha
+		dec [cubiertos]
+no_mover_cubierto_derecha:
+		mov [mover_cubierto], 00
 		dec AH
 		mov [xJugador], AH
 		;;
@@ -1190,6 +1453,7 @@ colocar_jugador_derecha:
 		je pintar_objetivo_izquierda
 		jmp pintar_suelo_izquierda
 hay_objetivo_der_caja:
+		inc [cubiertos]
 		mov DL, CUBIERTO
 		push AX
 		call colocar_en_mapa
@@ -1223,7 +1487,7 @@ pintar_objetivo_izquierda:
 		jmp no_hay_objetivo
 fin_entrada_juego:
 		ret
-pausa:							; ESTO AÚN DEBE SER ACTUALIZADO POR EL MENÚ DE PAUSA
+pausa:							
 		call clear_pantalla
 		mov AH, 4c
 		ret
@@ -1231,12 +1495,18 @@ hay_objetivo:
 		push AX
 		mov AL, 01
 		mov [sobre_objetivo], AL
+		mov AX, [puntos]
+		inc AX
+		mov [puntos], AX
 		pop AX
 		ret
 no_hay_objetivo:
 		push AX
 		mov AL, 00
 		mov [sobre_objetivo], AL
+		mov AX, [puntos]
+		inc AX
+		mov [puntos], AX
 		pop AX
 		ret
 
@@ -1273,7 +1543,6 @@ quitar_nl_y_fin:
 		mov DL, 00    ;; no ha finalizado el archivo
 		ret
 fin_siguiente_linea:
-		int 03
 		mov AL, 00
 		mov [DI], AL
 		mov DX, SI
@@ -1404,6 +1673,54 @@ seguir_convirtiendo:
 retorno_cadenaAnum:
 		ret
 
+num_to_string: ;------------------------------------Start of int_to_string
+        ; Convert int to string
+        ; Input: AX = int
+        ; Output: [numero] = string
+        cmp AX, 0000
+        je end_num_zero
+        mov CX, 0005
+        mov DI, offset numero
+cycle_set30:
+        mov BL, 30
+        mov [DI], BL
+        inc DI
+        loop cycle_set30
+        
+        mov CX, AX
+        mov DI, offset numero
+        add DI, 04
+cycle_num_to_string:
+        mov BL, [DI]
+        inc BL
+        mov [DI], BL
+        cmp BL, 3a
+        je increase_next
+        loop cycle_num_to_string
+        jmp end_num_to_string
+increase_next:
+        push DI
+increase_next_cycle:
+        mov BL, 30
+        mov [DI], BL
+        dec DI
+        mov BL, [DI]
+        inc BL
+        mov [DI], BL
+        cmp BL, 3a
+        je increase_next_cycle
+        pop DI
+        loop cycle_num_to_string
+end_num_to_string:
+        ret
+end_num_zero:
+        mov DI, offset numero
+        mov CX, 0005
+        mov AL, 30
+        call memset
+        ret
+        ;------------------------------------End of int_to_string
+
 mensaje_inicial:
 		mov DH, 04 ;; <<-- posicionar el cursor
 		mov DL, 01
@@ -1462,6 +1779,120 @@ copy_string: ;------------------------------------Start of copy_string
         loop copy_string
         ret
         ;------------------------------------End of copy_string
+
+set_current_time: ;-------------------------------- Start of set current time
+		push AX
+		push CX
+		push DX
+		mov AH, 2c
+		int 21
+		mov [hours], CH
+		mov [minutes], CL
+		mov [seconds], DH
+		pop DX
+		pop CX
+		pop AX
+		ret
+
+calculate_time: ;-------------------------------- Start of calculate time
+		push AX
+		push CX
+		push DX
+		push DI
+		push SI
+		mov AH, 2c
+		int 21
+		mov AX, 0000
+		mov [seconds_tmp], DH
+
+		cmp [seconds], DH
+		je set_seconds
+		cmp [seconds], DH
+		jb set_seconds
+		add DH, 3c
+		sub CL, 01
+set_seconds:
+		sub DH, [seconds]
+		push CX
+		mov AH, 00
+		mov AL, DH
+		call num_to_string
+		mov SI, offset numero
+		add SI, 03
+		mov DI, offset time
+		add DI, 06
+		mov CX, 0002
+		call copy_string
+		pop CX
+
+		cmp [minutes], CL
+		je set_minutes
+		cmp [minutes], CL
+		jb set_minutes
+		add CL, 3c
+		sub CH, 01
+set_minutes:
+		sub CL, [minutes]
+		push CX
+		mov AL, CL
+		call num_to_string
+		mov SI, offset numero
+		add SI, 03
+		mov DI, offset time
+		add DI, 03
+		mov CX, 0002
+		call copy_string
+		pop CX
+
+		sub CH, [hours]
+		push CX
+		mov AL, CH
+		call num_to_string
+		mov SI, offset numero
+		add SI, 03
+		mov DI, offset time
+		mov CX, 0002
+		call copy_string
+		pop CX
+
+		pop SI
+		pop DI
+		pop DX
+		pop CX
+		pop AX
+		ret
+
+time_pause: ;-------------------------------- Start of time pause
+		push AX
+		push CX
+		push DX
+		mov AH, 2c
+		int 21
+		cmp [seconds_tmp], DH
+		je end_time_pause
+
+		cmp [seconds], 3b
+		jne set_seconds_pause
+		mov [seconds], 00
+		cmp [minutes], 3b
+		jne set_minutes_pause
+		mov [minutes], 00
+		inc [hours]
+		mov [seconds_tmp], DH
+		jmp end_time_pause
+set_seconds_pause:
+		inc [seconds]
+		mov [seconds_tmp], DH
+		jmp end_time_pause
+set_minutes_pause:
+		inc [minutes]
+		mov [seconds_tmp], DH
+		jmp end_time_pause
+end_time_pause:
+		pop DX
+		pop CX
+		pop AX
+		ret
 
 fin:
 .EXIT
