@@ -39,54 +39,6 @@ Luego del mensaje inicial estará el login de la aplicación donde el usuario de
 
 ![Login](./Imgs/login.png "Login")
 
-
-##### ***Menú Productos***
-Este será el módulo de productos, acá el usuario podrá elegir entre crear un producto, eliminar un producto o pedir al sistema que muestre los productos ya ingresados.
-
-![Menú Productos](./Imgs/menu_productos.png "Menú Productos")   
-
-
-##### ***Crear Producto***
-Está opción le pedirá al usuario los datos correspondientes para poder crear un producto, en caso de que los datos se ingresen de forma incorrecta entonces el sistema volverá a pedir dicha información. En caso de que el artículo ya exista entonces el sistema informará al usuario y no creará el producto.
-
-![Crear Producto](./Imgs/crear_producto.png "Crear Producto")  
-
-
-##### ***Eliminar Producto***
-Esta opción solicitará al usuario el código del producto a eliminar, en caso de existir se procederá con la eliminación, de lo contrario informará al usuario que dicho producto no se encuentra.
-
-![Eliminar Producto](./Imgs/eliminar_producto.png "Eliminar Producto") 
-
-
-##### ***Mostrar Productos***
-Esta opción permitirá al usuario poder visualizar los productos que actualmente están ingresados en el sistema. El sistema los mostrará 5 productos y consultará al usuario si quiere seguir viendo otros 5 o si desea salir.
-
-![Mostrar Producto](./Imgs/mostrar_productos.png "Mostrar Producto") 
-
-
-##### ***Menú Herramientas***
-Este será el módulo donde el usuario podrá generar los reportes del sistema.
-
-![Menú Herramientas](./Imgs/menu_utilidades.png "Menú Herramientas")
-
-
-##### ***Catálogo de Productos***
-Esta opción generará un documento llamado CATALOG.HTM en donde se mostrará el reporte de los productos que están en el sistema con todos sus datos.
-
-![Catálogo](./Imgs/catalogo.png "Catálogo") 
-
-
-##### ***Orden Alfabético***
-Esta opción generará un documento llamado ABC.HTM en donde se mostrará el reporte de los productos que están en el sistema en orden alfabético.
-
-![Alfabético](./Imgs/alfabetico.png "Alfabético") 
-
-
-##### ***Productos sin Stock***
-Esta opción generará un documento llamado FALTA.HTM en donde se mostrará el reporte de los productos con los que actualmente no se cuenta, es decir, no se tiene stock.
-
-![Productos sin Stock](./Imgs/sin_stock.png "Productos sin Stock") 
-
 ___
 ___
 ## **Manual Técnico**
