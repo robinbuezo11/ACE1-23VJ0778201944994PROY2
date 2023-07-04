@@ -166,7 +166,7 @@ inicio:
 
 		;; MENSAJE INICIAL
 
-		;call mensaje_inicial			ESTO LLAMA AL MENSAJE INICIAL
+		call mensaje_inicial			;ESTO LLAMA AL MENSAJE INICIAL
 
 		;; MENU PRINCIPAL
 ir_al_menu_principal:
