@@ -3,7 +3,7 @@
 *Arquitectura de Computadores y Ensambladores 1, Vacaciones Junio, 2023.*  
 
 ___
-## **PRACTICA 2**
+## **PROYECTO 2**
 ___
 **201944994 - Robin Omar Buezo Díaz**  
 
@@ -29,7 +29,7 @@ En esta pantalla principal se muestra un encabezado con los datos del desarrolla
 ![Mensaje Inicial](./Imgs/mensaje_inicial.png "Mensaje inicial")  
  
 
-##### ***Login***
+##### ***Juego***
 Luego del mensaje inicial estará el login de la aplicación donde el usuario deberá ingresar sus credenciales, en caso de ser incorrectas entonces el sistema se cerrará.
 
 ![Login](./Imgs/login.png "Login")
