@@ -26,19 +26,18 @@ ___
 ##### ***Inicio***
 En esta pantalla principal se muestra un encabezado con los datos del desarrollador.
 
-![Mensaje Inicial](./Imgs/mensaje_inicial.png "Mensaje inicial")  
+![Mensaje Inicial](./Imgs/mensaje_inicial.png "Mensaje inicial") 
+
+##### ***Menú Principal***
+Este será el menú inicial del usuario y le permitirá ingresar a los diferentes modulos que tiene el sistema ingresando la tecla que corresponda a cada uno de ellos, en caso de ingresar una erronea entonces el sistema volverá a mostrar el menú.
+
+![Menú Inicial](./Imgs/menu.png "Menú Inicial")  
  
 
 ##### ***Juego***
 Luego del mensaje inicial estará el login de la aplicación donde el usuario deberá ingresar sus credenciales, en caso de ser incorrectas entonces el sistema se cerrará.
 
 ![Login](./Imgs/login.png "Login")
-
-
-##### ***Menú Principal***
-Este será el menú inicial del usuario y le permitirá ingresar a los diferentes modulos que tiene el sistema ingresando la tecla que corresponda a cada uno de ellos, en caso de ingresar una erronea entonces el sistema volverá a mostrar el menú.
-
-![Menú Inicial](./Imgs/menu.png "Menú Inicial")  
 
 
 ##### ***Menú Productos***
